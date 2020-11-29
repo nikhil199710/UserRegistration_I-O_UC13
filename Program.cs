@@ -61,13 +61,6 @@ namespace AddressBookSystem
                     }
                     /// calling function to display contact details
                     addressBook.DisplayContactPersonDetails();
-                    Console.WriteLine("Press Y to sort by some other detail");
-                    char choice = Convert.ToChar(Console.ReadLine());
-                    if (choice == 'Y')
-                    {
-                        addressBook.DisplayContactPersonDetails();
-                    }
-
                     Console.WriteLine("enter an option ");
                     Console.WriteLine("1. To update the contact details");
                     Console.WriteLine("2. To delete the contact details");
@@ -88,50 +81,77 @@ namespace AddressBookSystem
                             break;
                         default:
                             break;
-
                     }
                     /// adding details in multiple address book using name enter and AddressBook instance created             
                     multipleAddressBook.AddMultipleAddressBook(name, addressBook);
                     dictionaryformultiplerecords.Add(name, addressBook.addressBookList);
-
-                }
-                /// display multiple AddressBook using name of addressbook
-                multipleAddressBook.display();
-                bool repeatState = true;
-                while (repeatState)
-                {
-                    Console.WriteLine("Press Y to search by state");
-                    char stateSearchCheck = Convert.ToChar(Console.ReadLine());
-                    if (stateSearchCheck == 'Y')
+                    bool flag1 = true;
+                    while (flag1)
                     {
-                        addressBook1.SearchingByState();
-                    }
-                    Console.WriteLine("If you wish to enter search again Press Y");
-                    char repeatCheck = Convert.ToChar(Console.ReadLine());
-                    if (repeatCheck != 'Y')
-                        repeatState = false;
-                }
-                bool repeatCity = true;
-                while (repeatCity)
-                {
-                    Console.WriteLine("Press Y to get contacts by city");
-                    char cityCheck = Convert.ToChar(Console.ReadLine());
+                        Console.WriteLine("Press 0 to display all contacts");
+                        Console.WriteLine("Press 1 To search by state ");
+                        Console.WriteLine("Press 2 To search by city");
+                        Console.WriteLine("Press 3 To Write using Stream Reader ");
+                        Console.WriteLine("Press 4 To Read all the contacts from file using stream Reader");
+                        Console.WriteLine("Press 5 To Write Contacts to a Csv File ");
+                        Console.WriteLine("Press 6 To Read all the contacts from Csv file ");
+                        Console.WriteLine("Press 7 To write contacts into a Json File");
+                        Console.WriteLine("Press 8 To read contacts from a Json File");
+                        Console.WriteLine("Press 9 to exit");
+                        int checkOption = Convert.ToInt32(Console.ReadLine());
+                        switch (checkOption)
+                        {
+                            case 0:
+                                multipleAddressBook.display();
+                                break;
+                            case 1:
+                                addressBook1.SearchingByState();
 
-                    if (cityCheck == 'Y')
-                    {
-                        addressBook1.SearchingByCity();
+                                break;
+                            case 2:
+                                addressBook1.SearchingByCity();
+                                break;
+                            case 3:
+                                AddressBook.WriteUsingStreamReader();
+                                break;
+                            case 4:
+                                AddressBook.ReadFromStreamReader();
+                                break;
+                            case 5:
+                                Console.WriteLine("Write name of the address Book you which you want to write");
+                                string nameOfAddressBook = Console.ReadLine();
+                                if (Program.dictionaryformultiplerecords.ContainsKey(nameOfAddressBook))
+                                {
+                                    AddressBook.WritingContactsinCsvFile(dictionaryformultiplerecords, nameOfAddressBook);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("addressBook Name not Found");
+                                }
+                                break;
+                            case 6:
+                                AddressBook.ReadingContactsFromCsvFile();
+                                break;
+                            case 7:
+                                Console.WriteLine("Write name of the address Book you which you want to write");
+                                string nameOfAddressBookJson = Console.ReadLine();
+                                if (Program.dictionaryformultiplerecords.ContainsKey(nameOfAddressBookJson))
+                                {
+                                    AddressBook.WritingContactsAsJsonFile(dictionaryformultiplerecords, nameOfAddressBookJson);
+                                }
+                                else
+                                {
+                                    Console.WriteLine("addressBook Name not Found");
+                                }
+                                break;
+                            case 8:
+                                AddressBook.ReadingContactsFromJsonFile();
+                                break;
+                            case 9:
+                                flag1 = false;
+                                break;
+                        }
                     }
-                    Console.WriteLine("If you wish to enter search again Press Y");
-                    char repeatCheck = Convert.ToChar(Console.ReadLine());
-                    if (repeatCheck != 'Y')
-                        repeatCity = false;
-                }
-                Console.WriteLine("To read all the contacts from streamWriter Press Y otherwise Press N");
-                char streamReadCheck = Convert.ToChar(Console.ReadLine());
-
-                if (streamReadCheck == 'Y')
-                {
-                    AddressBook.ReadFromStreamReader();
                 }
             }
             catch (Exception ex)
@@ -141,6 +161,5 @@ namespace AddressBookSystem
                 AddressBookOptions();
             }
         }
-
     }
 }

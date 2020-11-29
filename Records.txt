@@ -3,3 +3,6 @@ firstName : nikhil  last name  :yadav address : home city : kol state : wb  zip 
 firstName : akhil  last name  :yadav address : home city : hyd state : patna  zip : 7890 phone number : 7654  email :ak@gm.com
 Address Book Name: CHECKINGStreamReader
 firstName : stream  last name  :reader address : mumbai city : mumbai state : maha  zip : 6789 phone number : 78653  email :kk3
+Address Book Name: PHONEBOOK
+firstName : nikhil  last name  :yadav address : home city : kol state : wb  zip : 786690 phone number : 654365152  email :nik@gmail.com
+firstName : akhil  last name  :yadav address : home city : hyd state : patna  zip : 7890 phone number : 7654  email :ak@gm.com

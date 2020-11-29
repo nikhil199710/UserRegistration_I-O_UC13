@@ -1,9 +1,13 @@
-﻿using System;
+﻿using CsvHelper;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Security.Cryptography.X509Certificates;
+using System.Text.Json;
 
 namespace AddressBookSystem
 {
@@ -29,7 +33,7 @@ namespace AddressBookSystem
 
         /// <summary>
         /// Adds the details of persons.
-        /// Uc7
+        /// UC7
         /// </summary>     
         public void AddDetailsOfPersons(string firstName, string lastName, string address, string city, string state, int zip, double phoneNo, string eMail)
         {
@@ -41,8 +45,9 @@ namespace AddressBookSystem
             {
                 addressBookList.Add(contactPerson);
                 Console.WriteLine("detail succesfully added");
-                //ReadFromStreamReader();
-                WriteUsingStreamReader();
+                //ReadingContactsFromCsvFile(addressBookList);
+                //WritingContactsFromCsvFile(addressBookList);
+
                 ///Adding details into dictionaryByState with state as key
                 if (Program.dictionaryByState.ContainsKey(contactPerson.state))
                 {
@@ -136,7 +141,7 @@ namespace AddressBookSystem
 
         /// <summary>
         /// Deletes the contact person details.
-        /// </summary>     
+        /// </summary>  
         public void DeleteContactPersonDetails(string fName, string lName)
         {
             foreach (ContactPerson contactPerson in addressBookList)
@@ -150,6 +155,7 @@ namespace AddressBookSystem
                 }
             }
         }
+
         /// <summary>
         /// Check for Duplicacy 
         /// UC7
@@ -195,6 +201,7 @@ namespace AddressBookSystem
             }
             Console.WriteLine("The count of {0} is {1}", searchState, index);
         }
+
         /// <summary>
         /// Searching by city
         /// UC9 ,UC10
@@ -223,15 +230,21 @@ namespace AddressBookSystem
 
         /// <summary>
         /// Writing using Stream Reader
+        /// UC13
         /// </summary>
         public static void WriteUsingStreamReader()
         {
+            ///writing all the entries in addressbook to path using stream reader           
             Console.WriteLine("Writing contacts to file");
-            string path = "C:/Users/Acer/source/repos/ConsoleApp1/ConsoleApp1/Records.txt";
+            ///declaring a path 
+            string path = "C:/Users/Administrator/Desktop/FileIOOperation-AddressBook/FileIOoperation-AddressBook/FileIOoperation-AddressBook/Records.txt";
+            ///checking if file exists
             if (File.Exists(path))
             {
+                ///if it exists stream writer func is called from Io stream
                 using (StreamWriter stream = File.AppendText(path))
                 {
+                    /// for each addressbook stream.writeline will print the addressbookk
                     foreach (KeyValuePair<String, List<ContactPerson>> keyvaluepair in Program.dictionaryformultiplerecords)
                     {
                         string name = keyvaluepair.Key;
@@ -241,36 +254,147 @@ namespace AddressBookSystem
                         {
                             stream.WriteLine("firstName : " + contactPerson.firstName + "  last name  :" + contactPerson.lastName + " address : " + contactPerson.address + " city : " + contactPerson.city + " state : " + contactPerson.state + "  zip : " + contactPerson.zip + " phone number : " + contactPerson.phoneNo + "  email :" + contactPerson.email);
                         }
-                        // Console.WriteLine(File.ReadAllText(path));
                     }
                     Console.WriteLine("Address Book written into the file successfully");
-
                     stream.Flush();
                 }
             }
-
         }
+
         /// <summary>
         /// Reading using Stream Reader
+        /// UC13
         /// </summary>
         public static void ReadFromStreamReader()
         {
-            string path = "C:/Users/Acer/source/repos/ConsoleApp1/ConsoleApp1/Records.txt";
+            ///path is defined for reading
+            string path = "C:/Users/Administrator/Desktop/FileIOOperation-AddressBook/FileIOoperation-AddressBook/FileIOoperation-AddressBook/Records.txt";
             using (StreamReader sr = File.OpenText(path))
             {
+                ///until line is null streamReader instance sr will read till then 
                 string line = "";
                 while ((line = sr.ReadLine()) != null)
                 {
                     Console.WriteLine(line);
                 }
+                ///it is mandatory to close and flush otherwise errors will be thrown
                 sr.Close();
             }
-
         }
+
+        /// <summary>
+        /// Reading Contacts From CsvFile
+        /// UC14
+        /// </summary>
+        public static void ReadingContactsFromCsvFile()
+        {
+            Console.WriteLine("Reading Contacts from csv file ");
+            foreach (KeyValuePair<string, List<ContactPerson>> keyValuePair in Program.dictionaryformultiplerecords)
+            {
+                string path = @"C:\Users\Administrator\Desktop\FileIOOperation-AddressBook\FileIOoperation-AddressBook\FileIOoperation-AddressBook" + keyValuePair.Key + ".csv";
+                if (File.Exists(path))
+                {
+                    var reader = new StreamReader(path);
+                    var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
+                    List<ContactPerson> records = csv.GetRecords<ContactPerson>().ToList();
+                    foreach (ContactPerson contactPerson in records)
+                    {
+                        Console.WriteLine("firstName : " + contactPerson.firstName + "  last name  :" + contactPerson.lastName + " address : " + contactPerson.address + " city : " + contactPerson.city + " state : " + contactPerson.state + "  zip : " + contactPerson.zip + " phone number : " + contactPerson.phoneNo + "  email :" + contactPerson.email);
+
+                    }
+                    reader.Close();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writing Contacts in CsvFile
+        /// UC14
+        /// </summary>
+        /// <param name="dictionaryOfMultipleRecord"></param>
+        /// <param name="nameOfBook"></param>
+        public static void WritingContactsinCsvFile(Dictionary<string, List<ContactPerson>> dictionaryOfMultipleRecord, String nameOfBook)
+        {
+            ///creating different files for diff addressbook so path changes accordingly
+            foreach (KeyValuePair<string, List<ContactPerson>> keyValuePair in dictionaryOfMultipleRecord)
+            {
+                string name = keyValuePair.Key;
+                ///creating a list 
+                List<ContactPerson> list = keyValuePair.Value;
+                if (name.Equals(nameOfBook))
+                {
+                    string path = "C:/Users/Administrator/Desktop/FileIOOperation-AddressBook/FileIOoperation-AddressBook/FileIOoperation-AddressBook" + nameOfBook + ".csv";
+                    using (StreamWriter stream = new StreamWriter(path))
+                    {
+                        ///instatiating csvreader object to read csv file
+                        using (CsvWriter writer = new CsvWriter(stream, CultureInfo.InvariantCulture))
+                        {
+                            ///csv writer will write records in the list to the path
+                            writer.WriteRecords(list);
+                            /// flush the csv writer
+                            writer.Flush();
+                        }
+                        Console.WriteLine("successfull writing in csv file ");
+                        ///closing stream is also mandatory
+                        stream.Close();
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Writing Contacts As JsonFile
+        /// UC15
+        /// </summary>
+        /// <param name="dictionaryOfMultipleRecord"></param>
+        /// <param name="nameOfBook"></param>
+        public static void WritingContactsAsJsonFile(Dictionary<string, List<ContactPerson>> dictionaryOfMultipleRecord, String nameOfBook)
+        {
+
+            ///creating different files for diff addressbook so path changes accordingly
+            foreach (KeyValuePair<string, List<ContactPerson>> keyValuePair in dictionaryOfMultipleRecord)
+            {
+                string path = "C:/Users/Administrator/Desktop/FileIOOperation-AddressBook/FileIOoperation-AddressBook/FileIOoperation-AddressBook" + nameOfBook + ".json";
+                string name = keyValuePair.Key;
+                List<ContactPerson> list = keyValuePair.Value;
+                if (name.Equals(nameOfBook))
+                {
+                    ///creating a streamwriter instance
+                    StreamWriter stream = new StreamWriter(path);
+                    ///serialising it to conver it into json file
+                    Newtonsoft.Json.JsonSerializer serializer = new Newtonsoft.Json.JsonSerializer();
+                    JsonWriter jsonWriter = new JsonTextWriter(stream);
+                    serializer.Serialize(stream, list);
+                    stream.Flush();
+                    stream.Close();
+                    Console.WriteLine("details added successfully in json");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Reading Contacts From JsonFile()
+        /// UC15
+        /// </summary>
+        public static void ReadingContactsFromJsonFile()
+        {
+            Console.WriteLine("Reading Contacts from json files ");
+            foreach (KeyValuePair<string, List<ContactPerson>> keyValuePair in Program.dictionaryformultiplerecords)
+            {
+                //defining path for each address book
+                string path = "C:/Users/Administrator/Desktop/FileIOOperation-AddressBook/FileIOoperation-AddressBook/FileIOoperation-AddressBook" + keyValuePair.Key + ".json";
+                ///deserializing object from json file, reading files and typecasting to list
+                List<ContactPerson> list = JsonConvert.DeserializeObject<List<ContactPerson>>(File.ReadAllText(path));
+                foreach (ContactPerson contactPerson in list)
+                {
+                    Console.WriteLine("firstName : " + contactPerson.firstName + "  last name  :" + contactPerson.lastName + " address : " + contactPerson.address + " city : " + contactPerson.city + " state : " + contactPerson.state + "  zip : " + contactPerson.zip + " phone number : " + contactPerson.phoneNo + "  email :" + contactPerson.email);
+                    Console.WriteLine("/n");
+                }
+            }
+        }
+
+
+
 
     }
 }
-
-
-
-
